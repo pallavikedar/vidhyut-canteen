@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -11,13 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Settings, ShoppingCart, User } from "lucide-react"
+import { LogOut, Settings, ShoppingCart, User, Menu as MenuIcon, X } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import logo from "@/public/logo.png"
 
 export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const getInitials = (name: string) => {
     return name
@@ -30,31 +32,39 @@ export function Navbar() {
   return (
     <nav className="bg-white shadow-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-40">
-
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Left: Logo + App Name */}
           <div className="flex items-center space-x-3">
             <Link href="/">
-              <Image src={logo} alt="Logo"  className="rounded-md w-50 h-50 text-transparent  opacity-40" />
+              <Image src={logo} alt="Logo" width={40} height={40} className="rounded-md w-10 h-10 text-transparent opacity-40" />
             </Link>
-            <Link href="/" className="text-3xl font-bold text-primary hover:text-primary/80 transition ">
+            <Link
+              href="/"
+              className="text-xl sm:text-2xl md:text-3xl font-bold text-primary hover:text-primary/80 transition whitespace-nowrap"
+            >
               विद्युत कॅन्टीन
             </Link>
           </div>
 
-          {/* Right: Navigation Buttons */}
-          <div className="flex items-center space-x-4">
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden p-2 rounded focus:outline-none"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+          </button>
+
+          {/* Right: Navigation Buttons (Desktop) */}
+          <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                {/* Cart Button */}
                 <Link href="/cart">
                   <Button variant="ghost" size="sm" className="flex items-center space-x-1 hover:bg-gray-100">
                     <ShoppingCart className="h-4 w-4" />
                     <span>Cart</span>
                   </Button>
                 </Link>
-
-                {/* Admin Button */}
                 {user?.isAdmin && (
                   <Link href="/admin">
                     <Button variant="ghost" size="sm" className="flex items-center space-x-1 hover:bg-gray-100">
@@ -63,8 +73,6 @@ export function Navbar() {
                     </Button>
                   </Link>
                 )}
-
-                {/* User Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="relative h-10 w-10 rounded-full focus:outline-none border border-gray-200 hover:border-gray-300 transition">
@@ -113,6 +121,61 @@ export function Navbar() {
             )}
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="md:hidden mt-2 bg-white rounded shadow-lg p-4 space-y-3">
+            {isAuthenticated ? (
+              <>
+                <Link href="/cart" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full flex items-center space-x-1 hover:bg-gray-100">
+                    <ShoppingCart className="h-4 w-4" />
+                    <span>Cart</span>
+                  </Button>
+                </Link>
+                {user?.isAdmin && (
+                  <Link href="/admin" onClick={() => setMobileOpen(false)}>
+                    <Button variant="ghost" size="sm" className="w-full flex items-center space-x-1 hover:bg-gray-100">
+                      <Settings className="h-4 w-4" />
+                      <span>Admin</span>
+                    </Button>
+                  </Link>
+                )}
+                <Link href="/profile" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full flex items-center space-x-1 hover:bg-gray-100">
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full flex items-center space-x-1 hover:bg-gray-100"
+                  onClick={() => {
+                    logout()
+                    setMobileOpen(false)
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Log out</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full hover:bg-gray-100">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)}>
+                  <Button size="sm" className="w-full bg-primary text-white hover:bg-primary/90">
+                    Register
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   )

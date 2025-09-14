@@ -35,7 +35,7 @@ export default function HomePage() {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
-            Welcome to <span className="text-primary">Vidyut Canteen</span>
+            Welcome to <span className="text-primary"> विद्युत कॅन्टीन</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
             Experience the future of canteen ordering with our modern management system. Quick, convenient, and
@@ -55,60 +55,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Features Section */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <Card className="text-center">
-            <CardHeader>
-              <ChefHat className="h-12 w-12 text-primary mx-auto mb-4" />
-              <CardTitle>Fresh & Delicious</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>Freshly prepared meals with authentic flavors and quality ingredients</CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center">
-            <CardHeader>
-              <Clock className="h-12 w-12 text-primary mx-auto mb-4" />
-              <CardTitle>Quick Service</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>Fast ordering system with real-time order tracking and notifications</CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center">
-            <CardHeader>
-              <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-              <CardTitle>For Everyone</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>Serving students, faculty, and staff with personalized experiences</CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center">
-            <CardHeader>
-              <Star className="h-12 w-12 text-primary mx-auto mb-4" />
-              <CardTitle>Quality Service</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>Committed to excellence in food quality and customer satisfaction</CardDescription>
-            </CardContent>
-          </Card>
-        </div>
+      
 
         {/* CTA Section */}
-        <div className="bg-card rounded-lg p-8 text-center">
-          <h2 className="text-3xl font-bold text-card-foreground mb-4">Ready to Order?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Join hundreds of satisfied customers who enjoy our convenient ordering system. Register now and start
-            exploring our delicious menu options.
-          </p>
-          <Link href="/register">
-            <Button size="lg">Create Your Account</Button>
-          </Link>
-        </div>
+        
       </main>
     </div>
   )

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, User, Mail, Lock, Phone, Briefcase } from "lucide-react"
+import { Loader2, User, Mail, Lock, Phone, Briefcase, EyeOff,Eye } from "lucide-react"
 import Link from "next/link"
 
 export function RegisterForm() {
@@ -21,6 +21,7 @@ export function RegisterForm() {
     designation: "",
   })
   const { register, loading } = useAuth()
+    const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,7 +39,7 @@ export function RegisterForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-primary">Join Vidyut Canteen</CardTitle>
+        <CardTitle className="text-2xl font-bold text-primary">Join  विद्युत कॅन्टीन</CardTitle>
         <CardDescription>Create your account to start ordering</CardDescription>
       </CardHeader>
       <CardContent>
@@ -106,30 +107,30 @@ export function RegisterForm() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                required
-              />
-            </div>
-          </div>
+         
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                id="password"
-                type="password"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={(e) => handleInputChange("password", e.target.value)}
-                className="pl-10"
-                required
-                minLength={6}
-              />
+  id="password"
+  type={showPassword ? "text" : "password"}
+  placeholder="Create a password"
+  value={formData.password}
+  onChange={(e) => handleInputChange("password", e.target.value)}
+  className="pl-10"
+  required
+  minLength={6}
+/>
+              <button
+        type="button"
+        onClick={() => setShowPassword((prev) => !prev)}
+        className="absolute right-3 top-2.5 text-muted-foreground focus:outline-none"
+        tabIndex={-1}
+      >
+        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
             </div>
           </div>
 

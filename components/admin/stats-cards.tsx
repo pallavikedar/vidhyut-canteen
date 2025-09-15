@@ -1,20 +1,98 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Users, Clock } from "lucide-react"
+import { databases, DATABASE_ID, ORDERS_COLLECTION_ID, USERS_COLLECTION_ID, Query } from "@/lib/appwrite"
 
-interface StatsCardsProps {
-  stats: {
-    totalRevenue: number
-    totalOrders: number
-    totalUsers: number
-    pendingOrders: number
-    revenueChange: number
-    ordersChange: number
-  }
+interface Stats {
+  totalRevenue: number
+  totalOrders: number
+  totalUsers: number
+  pendingOrders: number
+  revenueChange: number
+  ordersChange: number
 }
 
-export function StatsCards({ stats }: StatsCardsProps) {
+export function StatsCards() {
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // 1️⃣ Fetch orders
+        const ordersRes = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID)
+
+        const orders = ordersRes.documents
+
+        const totalRevenue = orders.reduce((sum, o: any) => sum + (o.totalAmount || 0), 0)
+        const totalOrders = orders.length
+        const pendingOrders = orders.filter((o: any) => o.status === "pending").length
+
+        // 2️⃣ Fetch users (if you have users collection)
+        let totalUsers = 0
+        try {
+          const usersRes = await databases.listDocuments(DATABASE_ID, USERS_COLLECTION_ID)
+          totalUsers = usersRes.total
+        } catch {
+          // fallback: unique userIds from orders
+          totalUsers = new Set(orders.map((o: any) => o.userId)).size
+        }
+
+        // 3️⃣ Compare revenue/orders change (this month vs last month)
+        const now = new Date()
+        const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
+
+        const thisMonthOrders = orders.filter(
+          (o: any) => new Date(o.$createdAt) >= startOfThisMonth
+        )
+        const lastMonthOrders = orders.filter(
+          (o: any) =>
+            new Date(o.$createdAt) >= startOfLastMonth &&
+            new Date(o.$createdAt) <= endOfLastMonth
+        )
+
+        const thisMonthRevenue = thisMonthOrders.reduce((sum, o: any) => sum + (o.totalAmount || 0), 0)
+        const lastMonthRevenue = lastMonthOrders.reduce((sum, o: any) => sum + (o.totalAmount || 0), 0)
+
+        const revenueChange =
+          lastMonthRevenue > 0
+            ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+            : 0
+        const ordersChange =
+          lastMonthOrders.length > 0
+            ? ((thisMonthOrders.length - lastMonthOrders.length) / lastMonthOrders.length) * 100
+            : 0
+
+        setStats({
+          totalRevenue,
+          totalOrders,
+          totalUsers,
+          pendingOrders,
+          revenueChange: Math.round(revenueChange),
+          ordersChange: Math.round(ordersChange),
+        })
+      } catch (err) {
+        console.error("Failed to fetch stats:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  if (loading) {
+    return <p className="text-center py-10">Loading stats...</p>
+  }
+
+  if (!stats) {
+    return <p className="text-center py-10 text-red-500">Failed to load stats</p>
+  }
+
   const cards = [
     {
       title: "Total Revenue",
@@ -40,14 +118,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       change: 0,
       changeText: "active users",
     },
-    {
-      title: "Pending Orders",
-      value: stats.pendingOrders.toString(),
-      description: "Awaiting processing",
-      icon: Clock,
-      change: 0,
-      changeText: "need attention",
-    },
+    
   ]
 
   return (
@@ -62,7 +133,11 @@ export function StatsCards({ stats }: StatsCardsProps) {
             <div className="text-2xl font-bold">{card.value}</div>
             <p className="text-xs text-muted-foreground">
               {card.change !== 0 && (
-                <span className={`inline-flex items-center ${card.change > 0 ? "text-green-600" : "text-red-600"}`}>
+                <span
+                  className={`inline-flex items-center ${
+                    card.change > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   {card.change > 0 ? (
                     <TrendingUp className="h-3 w-3 mr-1" />
                   ) : (

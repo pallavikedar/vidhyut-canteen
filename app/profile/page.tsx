@@ -77,31 +77,7 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Account Activity
-                </CardTitle>
-                <CardDescription>Your recent activity and statistics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <p className="text-2xl font-bold text-primary">0</p>
-                    <p className="text-sm text-muted-foreground">Total Orders</p>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <p className="text-2xl font-bold text-primary">₹0</p>
-                    <p className="text-sm text-muted-foreground">Total Spent</p>
-                  </div>
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <p className="text-2xl font-bold text-primary">New</p>
-                    <p className="text-sm text-muted-foreground">Member Since</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            
           </div>
         </main>
       </div>

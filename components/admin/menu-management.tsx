@@ -153,7 +153,7 @@ export function MenuManagement() {
     setEditingItem(null)
   }
 
-  const categories = Array.from(new Set(menuItems.map((item) => item.category))).filter(Boolean)
+  // const categories = Array.from(new Set(menuItems.map((item) => item.category))).filter(Boolean)
 
   return (
     <div className="space-y-6">
@@ -195,7 +195,7 @@ export function MenuManagement() {
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    required
+                    
                   />
                 </div>
 
@@ -235,17 +235,14 @@ export function MenuManagement() {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="North Indian">North Indian</SelectItem>
-                      <SelectItem value="South Indian">South Indian</SelectItem>
-                      <SelectItem value="Chinese">Chinese</SelectItem>
+                      
+                      <SelectItem value="North Indian">Breakfast</SelectItem>
+                      <SelectItem value="South Indian">Thali</SelectItem>
+                      
                       <SelectItem value="Snacks">Snacks</SelectItem>
                       <SelectItem value="Beverages">Beverages</SelectItem>
                       <SelectItem value="Desserts">Desserts</SelectItem>
+                     
                     </SelectContent>
                   </Select>
                 </div>

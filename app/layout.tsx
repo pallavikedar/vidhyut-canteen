@@ -7,6 +7,7 @@ import "./globals.css"
 import { AuthProvider } from "@/hooks/use-auth"
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
+import { CartProvider } from "@/hooks/use-cart"
 
 export const metadata: Metadata = {
   title: "Vidyut Canteen - Order Management System",
@@ -24,8 +25,10 @@ export default function RootLayout({
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Suspense fallback={null}>
           <AuthProvider>
+             <CartProvider>
             {children}
             <Toaster />
+            </CartProvider>
           </AuthProvider>
         </Suspense>
         <Analytics />

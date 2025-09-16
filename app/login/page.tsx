@@ -36,8 +36,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">Vidyut Canteen</h1>
-          <p className="text-muted-foreground">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-primary mb-2"> विद्युत भवन</h1>
+          <p className="text-2xl font-bold">कॅन्टीन/मेस </p>
         </div>
         <LoginForm />
       </div>

@@ -143,7 +143,7 @@ export function CheckoutForm() {
     return (
       <div className="text-center py-12">
         <h2 className="text-xl font-semibold">Your cart is empty</h2>
-        <Button size="sm" onClick={() => router.push("/menu")}>
+        <Button size="sm" onClick={() => router.push("/")}>
           Browse Menu
         </Button>
       </div>

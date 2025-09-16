@@ -8,20 +8,22 @@ import { ChefHat, Clock, Users, Star } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import MenuPage from "./menu/page"
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (user?.isAdmin) {
-        router.push("/admin")
-      } else {
-        router.push("/menu")
-      }
+ useEffect(() => {
+  if (isAuthenticated) {
+    if (user?.isAdmin) {
+      router.push("/admin")
+    } else {
+      router.push("/menu") // change this!
     }
-  }, [isAuthenticated, user, router])
+  }
+}, [isAuthenticated, user, router])
+
 
   if (isAuthenticated) {
     return null // Will redirect
@@ -29,11 +31,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+     
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        {/* <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
             Welcome to <span className="text-primary"> विद्युत कॅन्टीन</span>
           </h1>
@@ -55,11 +57,30 @@ export default function HomePage() {
           </div>
         </div>
 
-      
+       */}
 
         {/* CTA Section */}
-        
+
+        <MenuPage/>
       </main>
     </div>
   )
 }
+
+
+// "use client"
+
+// import { Navbar } from "@/components/layout/navbar"
+// import MenuPage from "./menu/page"
+
+// export default function HomePage() {
+  
+//   return (
+//     <div className="min-h-screen bg-background">
+//       <Navbar />
+//       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+//         <MenuPage />
+//       </main>
+//     </div>
+//   )
+// }

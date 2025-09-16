@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import type { MenuItem } from "@/lib/menu"
 import { menuService } from "@/lib/menu"
 import { Search } from "lucide-react"
+import { Navbar } from "../layout/navbar"
 
 export function MenuGrid() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([])
@@ -70,21 +71,10 @@ export function MenuGrid() {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <Label htmlFor="search">Search Menu</Label>
-          <div className="relative mt-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="search"
-              placeholder="Search for dishes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
+      <Navbar/>
 
+      <div className="flex flex-col sm:flex-row gap-4">
+        
         <div className="sm:w-48">
           <Label htmlFor="category">Category</Label>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>

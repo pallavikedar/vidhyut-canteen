@@ -15,7 +15,7 @@ export default function LoginPage() {
       if (user?.isAdmin) {
         router.push("/admin")
       } else {
-        router.push("/menu")
+        router.push("/")
       }
     }
   }, [isAuthenticated, loading, user, router])

@@ -109,6 +109,7 @@
 //     </ProtectedRoute>
 //   )
 // }
+
 "use client"
 
 import { ProtectedRoute } from "@/components/auth/protected-route"
@@ -120,10 +121,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ShoppingCart, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 
-function CartContent() {
+export function CartContent() {
   const { items, totalAmount, totalItems, clearCart } = useCart()
   const [loading, setLoading] = useState(true)
+  const { user  } = useAuth() // get logged-in user state
+  const router = useRouter()
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -144,24 +150,36 @@ function CartContent() {
   if (items.length === 0) {
     return (
       <div className="text-center py-10 px-3">
-        <ShoppingCart className="h-14 w-14 text-muted-foreground mx-auto mb-3" />
+        
         <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">
-          Your cart is empty
+          Add some delicious items
         </h2>
-        <p className="text-sm sm:text-base text-muted-foreground mb-5">
-          Add some delicious items from our menu to get started!
-        </p>
-        <Link href="/menu">
+    
+        <Link href="/">
           <Button className="w-full sm:w-auto">Browse Menu</Button>
         </Link>
       </div>
     )
   }
-
+  // const handlePlaceOrder = () => {
+  //   if (!user ) {
+  //     router.push("/login") // redirect to login if not logged in
+  //   } else {
+  //     router.push("/checkout") // otherwise go to checkout
+  //   }
+  // }
+  const handlePlaceOrder = () => {
+  if (!user) {
+    localStorage.setItem("redirectAfterLogin", "/checkout")
+    router.push("/login") // redirect to login if not logged in
+  } else {
+    router.push("/checkout") // otherwise go to checkout
+  }
+}
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {/* Cart Items */}
-      <div className="lg:col-span-2 space-y-4">
+      <div className="lg:col-span-2 space-y-4 pb-30 mt-10">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
           <h2 className="text-lg sm:text-xl font-semibold">
             Cart Items ({totalItems})
@@ -171,61 +189,42 @@ function CartContent() {
             onClick={clearCart}
             className="w-full sm:w-auto text-destructive hover:bg-destructive hover:text-destructive-foreground bg-transparent"
           >
-            Clear Cart
+            Clear items
           </Button>
         </div>
-
+        
         {items.map((item) => (
           <CartItemComponent
             key={`${item.$id}-${item.selectedSize}`}
             item={item}
+           
           />
         ))}
+        
       </div>
 
-      {/* Order Summary */}
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 fixed bottom-0 left-0 w-full z-50">
         <Card className="sticky top-4">
-          <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">Order Summary</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              Review your order before checkout
-            </CardDescription>
-          </CardHeader>
+         
           <CardContent className="space-y-4 text-sm sm:text-base">
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="truncate">Subtotal ({totalItems} items)</span>
-                <span>₹{totalAmount}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="truncate">Service Charge</span>
-                <span>₹0</span>
-              </div>
+             
               <div className="border-t pt-2">
                 <div className="flex justify-between font-semibold text-base sm:text-lg">
-                  <span>Total</span>
-                  <span className="text-primary">₹{totalAmount}</span>
+                  <span>Total Order Amount </span>
+                  <span>=</span>
+                  <span className="text-primary">₹{totalAmount}/-</span>
                 </div>
               </div>
             </div>
 
-            <Link href="/checkout" className="block">
-              <Button className="w-full" size="sm">
-                Proceed to Checkout
+         
+              <Button className="w-full" size="sm" onClick={handlePlaceOrder}>
+               Placed Order
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
+            
 
-            <Link href="/menu" className="block">
-              <Button
-                variant="outline"
-                className="w-full bg-transparent"
-                size="sm"
-              >
-                Continue Shopping
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       </div>

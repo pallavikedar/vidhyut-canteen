@@ -123,9 +123,9 @@ export function CartItemComponent({ item }: CartItemProps) {
   }
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="p-1">
-        <div className="flex flex-col gap-2">
+    <Card className="shadow-sm ">
+      <CardContent className="">
+        <div className="flex flex-row gap-2  justify-between items-center">
           {/* Top Row: Item Info */}
           <div className="flex justify-between items-start">
             <div className="flex-1">

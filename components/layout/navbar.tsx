@@ -46,12 +46,13 @@ export function Navbar() {
               href="/"
               className="text-l sm:text-2xl md:text-3xl font-bold text-primary hover:text-primary/80 transition whitespace-nowrap"
             >
-              विद्युत कॅन्टीन
+              विद्युत भवन
+              <div className="text-sm">कॅन्टीन/मेस</div>
             </Link>
           </div>
 
           {/* Cart Button - Always visible for authenticated users */}
-          {isAuthenticated && !user?.isAdmin && (
+          {/* {isAuthenticated && !user?.isAdmin && (
             <Link href="/cart">
               <Button
                 variant="ghost"
@@ -67,7 +68,7 @@ export function Navbar() {
                 <span>Cart</span>
               </Button>
             </Link>
-          )}
+          )} */}
 
           {/* Right: Menu toggle and nav links */}
           <div className="flex items-center">

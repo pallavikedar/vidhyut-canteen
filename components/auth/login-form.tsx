@@ -130,8 +130,8 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-primary">Welcome Back</CardTitle>
-        <CardDescription>Sign in to your विद्युत भवन कॅन्टीन/मेस account</CardDescription>
+       
+        <CardDescription>Sign in विद्युत भवन कॅन्टीन/मेस account</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -197,7 +197,7 @@ export function RegisterForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-primary">Join विद्युत भवन कॅन्टीन/मेस</CardTitle>
+       
         <CardDescription>Create your account to start ordering</CardDescription>
       </CardHeader>
       <CardContent>

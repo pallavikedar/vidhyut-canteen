@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { orderService } from "@/lib/orders"
 import type { Order } from "@/lib/orders"
+import { databases, DATABASE_ID, ORDERS_COLLECTION_ID } from "@/lib/appwrite"
 
 export default function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([])
@@ -28,20 +29,30 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const orders = await orderService.getAllOrders()
-      const recentOrdersList = orders.slice(0, 5)
-      setRecentOrders(recentOrdersList)
+       const orders = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID)
+      // Filter orders for today only
+      const today = new Date()
+      const todayStr = today.toISOString().slice(0, 10) // 'YYYY-MM-DD'
+
+      const todaysOrders = orders.documents.filter((order) =>
+        order.$createdAt.slice(0, 10) === todayStr
+      )
+
+      const sorted = todaysOrders.sort(
+        (a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+      )
+      setRecentOrders(sorted as Order[])
 
       // Calculate stats
-      const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0)
-      const pendingOrders = orders.filter((order) => order.status === "pending").length
+          const totalRevenue = sorted.reduce((sum, order) => sum + order.totalAmount, 0)
+    const pendingOrders = sorted.filter((order) => order.status === "pending").length
 
-      setStats((prev) => ({
-        ...prev,
-        totalRevenue,
-        totalOrders: orders.length,
-        pendingOrders,
-      }))
+    setStats((prev) => ({
+      ...prev,
+      totalRevenue,
+      totalOrders: sorted.length,
+      pendingOrders,
+    }))
     } catch (error) {
       console.error("Failed to load dashboard data:", error)
     }

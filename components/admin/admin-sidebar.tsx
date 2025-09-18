@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import credit from './credits-page'
 // import users from '../admin/users-list'
 
 const sidebarItems = [
@@ -36,8 +37,13 @@ const sidebarItems = [
     icon: ShoppingBag,
   },
   {
-    title: "Payments",
+    title: "Revenue and Orders Analytics",
     href: "/admin/payments",
+    icon: CreditCard,
+  },
+   {
+    title: " Payment Credits",
+    href: "/admin/credits",
     icon: CreditCard,
   },
  

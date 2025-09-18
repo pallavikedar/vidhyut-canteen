@@ -34,8 +34,8 @@ export function Navbar() {
   }
 
   return (
-    <nav className="bg-white shadow-md border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="w-full bg-white shadow-md border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Left: Logo + App Name */}
           <div className="flex items-center space-x-3">

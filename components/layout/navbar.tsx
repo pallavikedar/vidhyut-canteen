@@ -36,18 +36,20 @@ export function Navbar() {
   return (
     <nav className="w-full bg-white shadow-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
+        <div className="flex justify-evenly align-center items-center h-16 md:h-20">
           {/* Left: Logo + App Name */}
-          <div className="flex items-center space-x-3">
-            <Link href="/">
-              <Image src={logo} alt="Logo" width={40} height={40} className="rounded-md w-10 h-10 text-transparent opacity-40" />
-            </Link>
+          <div className=" w-1/3 flex items-right justify-center space-x-3">
+            
             <Link
               href="/"
               className="text-l sm:text-2xl md:text-3xl font-bold text-primary hover:text-primary/80 transition whitespace-nowrap"
             >
               विद्युत भवन
-              <div className="text-sm">कॅन्टीन/मेस</div>
+              <div className="  flex flex-row justify-between item-center">
+              <div className="text-xs">कॅन्टीन/मेस</div>
+              
+              </div>
+
             </Link>
           </div>
 

@@ -25,6 +25,7 @@ import {
   Permission,
   Role,
 } from "@/lib/appwrite"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 
 export function CheckoutForm() {
   const [paymentMethod, setPaymentMethod] = useState<string[]>([])
@@ -89,8 +90,8 @@ export function CheckoutForm() {
         userPhone: user.phone || "N/A",
         userDesignation: user.designation || "N/A",
         items: itemsAsStrings,
-        paymentMethod: paymentMethod.join(", ") || "N/A",
-        paymentPeriod: paymentPeriod.join(", ") || "N/A",
+       paymentMethod: paymentMethod || "N/A",
+paymentPeriod: paymentPeriod || "N/A",
         totalAmount,
       }
 
@@ -114,7 +115,7 @@ export function CheckoutForm() {
       })
       setPaymentMethod([])
       setPaymentPeriod([])
-      router.push("/orders")
+      router.push("/menu")
     } catch (error: any) {
       console.error("Order submission error:", error)
       toast({
@@ -199,93 +200,76 @@ export function CheckoutForm() {
         {/* Payment Options */}
         <div className="space-y-4">
           {/* Payment Method */}
-          <Card className="shadow-md border border-gray-200">
-            <CardHeader className="py-3">
-              <CardTitle className="text-lg">Payment Method</CardTitle>
-              <CardDescription className="text-sm">
-                Select your payment methods
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div
-                className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer"
-                onClick={() => handleCheckboxChange(paymentMethod, "cash", setPaymentMethod)}
-              >
-                <Checkbox
-                  checked={paymentMethod.includes("cash")}
-                  onCheckedChange={() => handleCheckboxChange(paymentMethod, "cash", setPaymentMethod)}
-                   className="border-primary"
-                />
-                <Label className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
-                  <Wallet className="w-4 h-4 text-gray-600" /> Cash
-                </Label>
-              </div>
-              <div
-                className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer"
-                onClick={() => handleCheckboxChange(paymentMethod, "online", setPaymentMethod)}
-              >
-                <Checkbox
-                  checked={paymentMethod.includes("online")}
-                  onCheckedChange={() => handleCheckboxChange(paymentMethod, "online", setPaymentMethod)}
-                  className="border-primary"
-                />
-                <Label className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
-                  <CreditCard className="w-4 h-4 text-gray-600" /> Online
-                </Label>
-              </div>
-            </CardContent>
-          </Card>
+<Card className="shadow-md border border-gray-200">
+  <CardHeader className="py-3">
+    <CardTitle className="text-lg">Payment Method</CardTitle>
+    <CardDescription className="text-sm">
+      Select your payment method
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <RadioGroup
+      value={paymentMethod}
+      onValueChange={(val) => {
+        setPaymentMethod(val)
+        setPaymentPeriod("") // 👈 clear period when method selected
+      }}
+    >
+      <div className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer">
+        <RadioGroupItem value="cash" id="cash" className="border-primary" />
+        <Label htmlFor="cash" className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
+          <Wallet className="w-4 h-4 text-gray-600" /> Cash
+        </Label>
+      </div>
+      <div className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer">
+        <RadioGroupItem value="online" id="online" className="border-primary" />
+        <Label htmlFor="online" className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
+          <CreditCard className="w-4 h-4 text-gray-600" /> Online
+        </Label>
+      </div>
+    </RadioGroup>
+  </CardContent>
+</Card>
 
-          {/* Payment Period */}
-          <Card className="shadow-md border border-gray-200">
-            <CardHeader className="py-3">
-              <CardTitle className="text-lg">Payment Period</CardTitle>
-              <CardDescription className="text-sm">
-                Select your payment periods
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div
-                className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer"
-                onClick={() => handleCheckboxChange(paymentPeriod, "daily", setPaymentPeriod)}
-              >
-                <Checkbox
-                  checked={paymentPeriod.includes("daily")}
-                  onCheckedChange={() => handleCheckboxChange(paymentPeriod, "daily", setPaymentPeriod)}
-                   className="border-primary"
-                />
-                <Label className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
-                  <Clock className="w-4 h-4 text-gray-600" /> Daily
-                </Label>
-              </div>
-              <div
-                className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer"
-                onClick={() => handleCheckboxChange(paymentPeriod, "weekly", setPaymentPeriod)}
-              >
-                <Checkbox
-                  checked={paymentPeriod.includes("weekly")}
-                  onCheckedChange={() => handleCheckboxChange(paymentPeriod, "weekly", setPaymentPeriod)}
-                   className="border-primary"
-                />
-                <Label className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-gray-600" /> Weekly
-                </Label>
-              </div>
-              <div
-                className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer"
-                onClick={() => handleCheckboxChange(paymentPeriod, "monthly", setPaymentPeriod)}
-              >
-                <Checkbox
-                  checked={paymentPeriod.includes("monthly")}
-                  onCheckedChange={() => handleCheckboxChange(paymentPeriod, "monthly", setPaymentPeriod)}
-                   className="border-primary"
-                />
-                <Label className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-gray-600" /> Monthly
-                </Label>
-              </div>
-            </CardContent>
-          </Card>
+{/* Payment Period */}
+<Card className="shadow-md border border-gray-200">
+  <CardHeader className="py-3">
+    <CardTitle className="text-lg">Payment Period</CardTitle>
+    <CardDescription className="text-sm">
+      Select your payment period
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <RadioGroup
+      value={paymentPeriod}
+      onValueChange={(val) => {
+        setPaymentPeriod(val)
+        setPaymentMethod("") // 👈 clear method when period selected
+      }}
+    >
+      <div className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer">
+        <RadioGroupItem value="daily" id="daily" className="border-primary" />
+        <Label htmlFor="daily" className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
+          <Clock className="w-4 h-4 text-gray-600" /> Daily
+        </Label>
+      </div>
+      <div className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer">
+        <RadioGroupItem value="weekly" id="weekly" className="border-primary" />
+        <Label htmlFor="weekly" className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
+          <Calendar className="w-4 h-4 text-gray-600" /> Weekly
+        </Label>
+      </div>
+      <div className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer">
+        <RadioGroupItem value="monthly" id="monthly" className="border-primary" />
+        <Label htmlFor="monthly" className="flex-1 cursor-pointer flex items-center gap-2 text-sm">
+          <Calendar className="w-4 h-4 text-gray-600" /> Monthly
+        </Label>
+      </div>
+    </RadioGroup>
+  </CardContent>
+</Card>
+
+
         </div>
       </div>
 

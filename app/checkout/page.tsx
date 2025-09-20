@@ -6,7 +6,7 @@ import { CartProvider } from "@/hooks/use-cart"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 
 
-export default function CheckoutPage({ params }: { params: { itemId: string } }) {
+export default function CheckoutPage() {
   return (
     <ProtectedRoute>
       <CartProvider>
@@ -19,7 +19,7 @@ export default function CheckoutPage({ params }: { params: { itemId: string } })
               <p className="text-muted-foreground">Complete your order and choose payment options</p>
             </div>
 
-            <CheckoutForm />
+            <CheckoutForm  />
           </main>
         </div>
       </CartProvider>

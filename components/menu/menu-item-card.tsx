@@ -265,7 +265,9 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
         </div>
 
         {/* Quantity / Add+ Button */}
-        <div className=" flex items-center">
+        
+      </div>
+      <div className=" flex items-center justify-center">
           {quantity > 0 ? (
             <div className="flex items-center gap-2">
               <Button
@@ -297,7 +299,6 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
             </Button>
           )}
         </div>
-      </div>
     </Card>
   )
 }

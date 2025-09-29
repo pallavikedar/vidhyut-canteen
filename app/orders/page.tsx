@@ -72,7 +72,7 @@ export default function MyOrdersPage() {
                     <b>Items:</b> {order.items.join(", ")}
                   </p>
                   <p className="text-gray-700 mt-1 text-sm">
-                    <b>Total:</b> RS{order.totalAmount}
+                    <b>Total:</b> ₹{order.totalAmount}
                   </p>
                   <p className="text-gray-500 mt-1 text-xs">
                     <b>Date:</b> {new Date(order.$createdAt).toLocaleDateString()}

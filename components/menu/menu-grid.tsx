@@ -77,8 +77,8 @@ export function MenuGrid() {
         
         <div className="sm:w-48">
           <Label htmlFor="category">Category</Label>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger id="category" className="mt-1">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory} >
+            <SelectTrigger id="category" className="mt-1 " >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

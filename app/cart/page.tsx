@@ -151,7 +151,7 @@ export function CartContent() {
     return (
       <div className="text-center py-10 px-3">
         
-        <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">
+        <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 ">
           Add some delicious items
         </h2>
     
@@ -181,13 +181,13 @@ export function CartContent() {
       {/* Cart Items */}
       <div className="lg:col-span-2 space-y-4 pb-30 mt-10">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-          <h2 className="text-lg sm:text-xl font-semibold">
+          <h2 className="text-lg sm:text-xl font-semibold ">
             Cart Items ({totalItems})
           </h2>
           <Button
             variant="outline"
             onClick={clearCart}
-            className="w-full sm:w-auto text-destructive hover:bg-destructive hover:text-destructive-foreground bg-transparent"
+            className="w-full sm:w-auto text-destructive hover:bg-destructive hover:text-destructive-foreground bg-white"
           >
             Clear items
           </Button>

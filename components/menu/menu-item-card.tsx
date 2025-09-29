@@ -232,7 +232,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
   }
 
   return (
-    <Card className="w-full p-3 hover:shadow-sm transition-shadow" style={{background: "#ffe76eff"}}>
+    <Card className="w-full p-3 hover:shadow-sm transition-shadow " style={{background: "#fdf8f3ff" }}>
       <div className="flex items-center justify-between gap-4">
         {/* Item Name */}
         <div className="flex-1">

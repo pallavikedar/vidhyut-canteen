@@ -149,6 +149,12 @@ export function Navbar() {
                     <span>Profile</span>
                   </Button>
                 </Link>
+                 <Link href="/orders" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="w-full flex items-center space-x-1 hover:bg-gray-100">
+                    <User className="h-4 w-4" />
+                    <span> My Orders</span>
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   size="sm"

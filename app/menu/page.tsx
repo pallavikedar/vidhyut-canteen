@@ -13,7 +13,7 @@ export default function MenuPage() {
   return (
     <ProtectedRoute>
       <CartProvider>
-        <div className="min-h-screen bg-background -mt-7" style={{ background: "#ffdf5fe9" }}>
+        <div className="min-h-screen bg-background -mt-7" style={{ background: "#fff9dfe9" }}>
           
 
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -232,11 +232,11 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
   }
 
   return (
-    <Card className="w-full p-3 hover:shadow-sm transition-shadow" style={{background: "#f8f5eaff"}}>
+    <Card className="w-full p-3 hover:shadow-sm transition-shadow" style={{background: "#ffe76eff"}}>
       <div className="flex items-center justify-between gap-4">
         {/* Item Name */}
         <div className="flex-1">
-          <p className="text-sm font-semibold">{item.name}</p>
+          <p className="text-md font-semibold">{item.name}</p>
           <p className="text-xs text-muted-foreground">{item.category}</p>
         </div>
 
@@ -294,6 +294,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
               onClick={handleAdd}
               className="h-7 text-xs px-3"
               disabled={!item.isAvailable || !selectedSize}
+              style={{background: "#ff6a06ff"}}
             >
               Add +
             </Button>

@@ -30,9 +30,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen  bg-background " >
      
-
+{/* #fde06fe9 */}
       <main >
         {/* Hero Section */}
         {/* <div className="text-center mb-16">

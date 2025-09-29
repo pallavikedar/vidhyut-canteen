@@ -208,7 +208,7 @@ export function MenuManagement() {
                       min="0"
                       value={formData.halfPrice}
                       onChange={(e) => setFormData({ ...formData, halfPrice: Number(e.target.value) })}
-                      required
+                      
                     />
                   </div>
 
@@ -220,7 +220,7 @@ export function MenuManagement() {
                       min="0"
                       value={formData.fullPrice}
                       onChange={(e) => setFormData({ ...formData, fullPrice: Number(e.target.value) })}
-                      required
+                     
                     />
                   </div>
                 </div>

@@ -210,7 +210,7 @@ export function CartContent() {
             <div className="space-y-2">
              
               <div className="border-t pt-2">
-                <div className="flex justify-between font-semibold text-base sm:text-lg">
+                <div className="flex justify-between font-semibold text-base sm:text-lg ">
                   <span>Total Order Amount </span>
                   <span>=</span>
                   <span className="text-primary">₹{totalAmount}/-</span>
@@ -219,7 +219,7 @@ export function CartContent() {
             </div>
 
          
-              <Button className="w-full" size="sm" onClick={handlePlaceOrder}>
+              <Button className="w-full mb-5 " size="sm"  onClick={handlePlaceOrder}>
                Placed Order
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

@@ -593,6 +593,305 @@
 
 
 
+// "use client"
+
+// import { useState, useEffect } from "react"
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+// import { Button } from "@/components/ui/button"
+// import { Badge } from "@/components/ui/badge"
+// import { Input } from "@/components/ui/input"
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+// import { Download, Calendar, Search } from "lucide-react"
+// import { databases, DATABASE_ID, ORDERS_COLLECTION_ID } from "@/lib/appwrite"
+// import { useAuth } from "@/hooks/use-auth"
+// import jsPDF from "jspdf"
+// import autoTable from "jspdf-autotable"
+// import * as XLSX from "xlsx"
+// import { useToast } from "@/hooks/use-toast"
+
+// export interface Order {
+//   $id: string
+//   userId: string
+//   userName: string
+//   userPhone: string
+//   userDesignation: string
+//   items: string[]
+//   paymentMethod: "cash" | "online"
+//   paymentPeriod: "daily" | "weekly" | "monthly"
+//   totalAmount: string
+//   $createdAt: string
+// }
+
+// export function OrderManagement() {
+//   const [orders, setOrders] = useState<Order[]>([])
+//   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
+//   const [loading, setLoading] = useState(true)
+//   const [searchTerm, setSearchTerm] = useState("")
+//   const [viewMode, setViewMode] = useState<"today" | "all" | "range">("today")
+//   const [fromDate, setFromDate] = useState("")
+//   const [toDate, setToDate] = useState("")
+//   const [activeFilter, setActiveFilter] = useState<"all" | "cash" | "online" | "daily" | "weekly" | "monthly">("all")
+//   const { user } = useAuth()
+//   const { toast } = useToast()
+
+//   useEffect(() => {
+//     if (user) loadOrders()
+//   }, [user])
+
+//   useEffect(() => {
+//     filterOrders()
+//   }, [orders, searchTerm, viewMode, fromDate, toDate, activeFilter])
+
+//   const loadOrders = async () => {
+//     if (!user) return
+//     setLoading(true)
+//     try {
+//       const res = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID)
+//       const sorted = res.documents.sort(
+//         (a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+//       )
+//       setOrders(sorted as Order[])
+//     } catch (error) {
+//       console.error("Failed to fetch orders:", error)
+//       toast({ title: "Error", description: "Failed to load orders", variant: "destructive" })
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
+
+// const filterOrders = () => {
+//   let filtered = [...orders]
+//   const today = new Date()
+
+//   if (viewMode === "today") {
+//     filtered = filtered.filter(o => new Date(o.$createdAt).toDateString() === today.toDateString())
+//   } else if (viewMode === "range" && fromDate && toDate) {
+//     const from = new Date(fromDate)
+//     const to = new Date(toDate)
+//     to.setHours(23, 59, 59, 999)
+//     filtered = filtered.filter(o => {
+//       const date = new Date(o.$createdAt)
+//       return date >= from && date <= to
+//     })
+//   } else if (viewMode === "all") {
+//     // ✅ show all orders (no date filtering)
+//     filtered = [...orders]
+//   }
+
+//   // Search filter
+//   if (searchTerm) {
+//     filtered = filtered.filter(
+//       o =>
+//         o.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//         o.userPhone.includes(searchTerm) ||
+//         o.$id.includes(searchTerm)
+//     )
+//   }
+
+//   // Active filter
+//   if (activeFilter === "cash") {
+//     filtered = filtered.filter(o => o.paymentMethod === "cash")
+//   } else if (activeFilter === "online") {
+//     filtered = filtered.filter(o => o.paymentMethod === "online")
+//   } else if (activeFilter === "daily") {
+//     filtered = filtered.filter(o => o.paymentPeriod === "daily")
+//   } else if (activeFilter === "weekly") {
+//     filtered = filtered.filter(o => o.paymentPeriod === "weekly")
+//   } else if (activeFilter === "monthly") {
+//     filtered = filtered.filter(o => o.paymentPeriod === "monthly")
+//   }
+
+//   setFilteredOrders(filtered)
+// }
+
+
+//   const exportExcel = () => {
+//     const worksheet = XLSX.utils.json_to_sheet(
+//       filteredOrders.map(o => ({
+//         OrderID: o.$id.slice(-6),
+//         Customer: o.userName,
+//         Phone: o.userPhone,
+//         Designation: o.userDesignation,
+//         Items: o.items.join(", "),
+//         Amount: o.totalAmount,
+//         PaymentMethod: o.paymentMethod,
+//         Period: o.paymentPeriod,
+//         Date: new Date(o.$createdAt).toLocaleString("en-IN"),
+//       }))
+//     )
+//     const workbook = XLSX.utils.book_new()
+//     XLSX.utils.book_append_sheet(workbook, worksheet, "Orders")
+//     XLSX.writeFile(workbook, "order-summary.xlsx")
+//   }
+
+//   const exportPDF = () => {
+//     const doc = new jsPDF()
+//     doc.setFontSize(18)
+//     doc.text("Order Summary Report", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" })
+//     doc.setFontSize(10)
+//     doc.text(`Generated on: ${new Date().toLocaleString("en-IN")}`, 14, 25)
+
+//     autoTable(doc, {
+//       startY: 35,
+//       head: [["Order ID", "Customer", "Designation", "Items", "Amount", "Payment", "Period", "Date"]],
+//       body: filteredOrders.map(o => [
+//         o.$id.slice(-6),
+//         `${o.userName}\n${o.userPhone}`,
+//         o.userDesignation,
+//         o.items.join(", "),
+//         o.totalAmount,
+//         o.paymentMethod,
+//         o.paymentPeriod,
+//         new Date(o.$createdAt).toLocaleString("en-IN"),
+//       ]),
+//       theme: "grid",
+//       headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontStyle: "bold" },
+//       margin: { top: 35, bottom: 20 },
+//     })
+
+//     doc.save("order-summary.pdf")
+//   }
+
+//   const getPaymentMethodColor = (method: "cash" | "online") =>
+//     method === "cash" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
+
+//   return (
+//     <div className="space-y-6">
+//       {/* Header and tabs */}
+//       <div className="flex flex-wrap items-center justify-between gap-2">
+//         <div>
+//           <h1 className="text-2xl font-bold">Order Management</h1>
+//           <p className="text-muted-foreground">Manage all customer orders</p>
+//         </div>
+//         <div className="flex flex-wrap gap-2">
+//           <Button variant={viewMode === "today" ? "default" : "outline"} onClick={() => setViewMode("today")}>
+//             Today’s Orders
+//           </Button>
+//           <Button variant={viewMode === "all" ? "default" : "outline"} onClick={() => setViewMode("all")}>
+//             All Orders
+//           </Button>
+//           <Button variant={viewMode === "range" ? "default" : "outline"} onClick={() => setViewMode("range")}>
+//             Date Range
+//           </Button>
+//           <Button variant="outline" onClick={exportExcel}>
+//             <Download className="h-4 w-4 mr-1" /> Export Excel
+//           </Button>
+//           <Button variant="outline" onClick={exportPDF}>
+//             <Download className="h-4 w-4 mr-1" /> Export PDF
+//           </Button>
+//         </div>
+//       </div>
+
+//       {/* Search + Date */}
+//       <div className="flex flex-wrap items-center gap-3">
+//         <div className="relative w-64">
+//           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+//           <Input
+//             placeholder="Search..."
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//             className="pl-8"
+//           />
+//         </div>
+
+//         {viewMode === "range" && (
+//           <div className="flex gap-2">
+//             <div className="relative">
+//               <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+//               <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="pl-8 w-48" />
+//             </div>
+//             <div className="relative">
+//               <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+//               <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="pl-8 w-48" />
+//             </div>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Single Filter Buttons */}
+//       <div className="flex flex-wrap gap-2 border-t pt-2">
+//         {["all", "cash", "online", "daily", "weekly", "monthly"].map(f => (
+//           <Button
+//             key={f}
+//             variant={activeFilter === f ? "default" : "outline"}
+//             onClick={() => setActiveFilter(f as any)}
+//           >
+//             {f.charAt(0).toUpperCase() + f.slice(1)}
+//           </Button>
+//         ))}
+//       </div>
+
+//       {/* Orders Table */}
+//       <Card>
+//         <CardHeader>
+//           <CardTitle>
+//             {viewMode === "today" ? "Today’s Orders" : viewMode === "range" ? "Orders by Date Range" : "All Orders"} ({filteredOrders.length})
+//           </CardTitle>
+//           <CardDescription>
+//             {viewMode === "today"
+//               ? "Orders placed today"
+//               : viewMode === "range"
+//               ? "Orders within selected date range"
+//               : "All orders"}
+//           </CardDescription>
+//         </CardHeader>
+//         <CardContent>
+//           {loading ? (
+//             <div className="text-center py-8">Loading...</div>
+//           ) : filteredOrders.length === 0 ? (
+//             <div className="text-center py-8 text-muted-foreground">No orders found</div>
+//           ) : (
+//             <Table>
+//               <TableHeader>
+//                 <TableRow>
+//                   <TableHead>Order ID</TableHead>
+//                   <TableHead>Customer</TableHead>
+//                   <TableHead>Designation</TableHead>
+//                   <TableHead>Items</TableHead>
+//                   <TableHead>Amount</TableHead>
+//                   <TableHead>Payment</TableHead>
+//                   <TableHead>Period</TableHead>
+//                   <TableHead>Date</TableHead>
+//                 </TableRow>
+//               </TableHeader>
+//               <TableBody>
+//                 {filteredOrders.map(o => (
+//                   <TableRow key={o.$id}>
+//                     <TableCell className="font-mono text-sm">#{o.$id.slice(-6)}</TableCell>
+//                     <TableCell>
+//                       <div className="font-medium">{o.userName}</div>
+//                       <div className="text-sm text-muted-foreground">{o.userPhone}</div>
+//                     </TableCell>
+//                     <TableCell>{o.userDesignation}</TableCell>
+//                     <TableCell className="text-sm">{o.items.join(", ")}</TableCell>
+//                     <TableCell className="font-semibold">₹{o.totalAmount}</TableCell>
+//                     <TableCell>
+//                       <Badge className={getPaymentMethodColor(o.paymentMethod)}>{o.paymentMethod}</Badge>
+//                     </TableCell>
+//                     <TableCell>{o.paymentPeriod}</TableCell>
+//                     <TableCell className="text-sm">{new Date(o.$createdAt).toLocaleString("en-IN")}</TableCell>
+//                   </TableRow>
+//                 ))}
+//               </TableBody>
+//             </Table>
+//           )}
+//         </CardContent>
+//       </Card>
+//     </div>
+//   )
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -608,6 +907,7 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { useToast } from "@/hooks/use-toast"
+import { Query } from "appwrite"
 
 export interface Order {
   $id: string
@@ -631,9 +931,11 @@ export function OrderManagement() {
   const [fromDate, setFromDate] = useState("")
   const [toDate, setToDate] = useState("")
   const [activeFilter, setActiveFilter] = useState<"all" | "cash" | "online" | "daily" | "weekly" | "monthly">("all")
+
   const { user } = useAuth()
   const { toast } = useToast()
 
+  // Fetch all orders with pagination from Appwrite
   useEffect(() => {
     if (user) loadOrders()
   }, [user])
@@ -645,12 +947,31 @@ export function OrderManagement() {
   const loadOrders = async () => {
     if (!user) return
     setLoading(true)
+
+    let allOrders: Order[] = []
+    let cursor: string | null = null
+    let keepFetching = true
+
     try {
-      const res = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID)
-      const sorted = res.documents.sort(
+      while (keepFetching) {
+        const queries = [Query.orderDesc("$createdAt"), Query.limit(50)]
+        if (cursor) queries.push(Query.cursorAfter(cursor))
+
+        const res = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID, queries)
+
+        if (res.documents.length > 0) {
+          allOrders = [...allOrders, ...(res.documents as Order[])]
+          cursor = res.documents[res.documents.length - 1].$id
+          if (res.documents.length < 50) keepFetching = false
+        } else {
+          keepFetching = false
+        }
+      }
+
+      const sorted = allOrders.sort(
         (a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
       )
-      setOrders(sorted as Order[])
+      setOrders(sorted)
     } catch (error) {
       console.error("Failed to fetch orders:", error)
       toast({ title: "Error", description: "Failed to load orders", variant: "destructive" })
@@ -663,12 +984,10 @@ export function OrderManagement() {
     let filtered = [...orders]
     const today = new Date()
 
-    // Tab filters
+    // Date filter
     if (viewMode === "today") {
       filtered = filtered.filter(o => new Date(o.$createdAt).toDateString() === today.toDateString())
-    }
-
-    if (viewMode === "range" && fromDate && toDate) {
+    } else if (viewMode === "range" && fromDate && toDate) {
       const from = new Date(fromDate)
       const to = new Date(toDate)
       to.setHours(23, 59, 59, 999)
@@ -676,6 +995,8 @@ export function OrderManagement() {
         const date = new Date(o.$createdAt)
         return date >= from && date <= to
       })
+    } else if (viewMode === "all") {
+      filtered = [...orders]
     }
 
     // Search filter
@@ -688,7 +1009,7 @@ export function OrderManagement() {
       )
     }
 
-    // Single active filter
+    // Active filter
     if (activeFilter === "cash") filtered = filtered.filter(o => o.paymentMethod === "cash")
     else if (activeFilter === "online") filtered = filtered.filter(o => o.paymentMethod === "online")
     else if (activeFilter === "daily") filtered = filtered.filter(o => o.paymentPeriod === "daily")

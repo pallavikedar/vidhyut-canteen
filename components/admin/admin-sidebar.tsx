@@ -36,16 +36,17 @@ const sidebarItems = [
     href: "/admin/orders",
     icon: ShoppingBag,
   },
-  {
-    title: "Revenue and Orders Analytics",
-    href: "/admin/payments",
-    icon: CreditCard,
-  },
    {
     title: " Payment Credits",
     href: "/admin/credits",
     icon: CreditCard,
   },
+  {
+    title: "Revenue and Orders Analytics",
+    href: "/admin/payments",
+    icon: CreditCard,
+  },
+  
  
 ]
 

@@ -5,7 +5,7 @@
 
 :root {
   /* Updated color tokens to match canteen design brief with orange theme */
-  --background: oklch(1 0 0); /* Pure white */
+  --background: oklch(100% 0.00011 271.152 / 0.912); /* Pure white */
   --foreground: oklch(0.35 0 0); /* Dark gray #4b5563 */
   --card: oklch(0.99 0.02 85); /* Soft cream #fffbeb */
   --card-foreground: oklch(0.35 0 0);
@@ -38,6 +38,7 @@
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(0.85 0 0);
   --sidebar-ring: oklch(0.65 0.15 45 / 0.5);
+  --main:  oklch(92.686% 0.12022 101.785 / 0.5);
 }
 
 .dark {

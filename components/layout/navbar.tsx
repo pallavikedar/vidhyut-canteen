@@ -35,21 +35,22 @@ export function Navbar() {
 
   return (
     <nav className="w-full bg-white shadow-md border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-8">
-        <div className="flex justify-evenly align-center items-center h-16 md:h-20">
+      <div className="w-full mx-auto px-2 sm:px-2 lg:px-8">
+        <div className="flex justify-evenly align-center items-center h-30 md:h-25">
           {/* Left: Logo + App Name */}
-          <div className=" w-1/3 flex items-right justify-center space-x-3">
+          <div className=" w-1/3 flex items-center justify-center space-x-3">
             
             <Link
               href="/"
-              className="text-l sm:text-2xl md:text-3xl font-bold text-primary hover:text-primary/80 transition whitespace-nowrap"
+              className="text-l sm:text-l md:text-xl font-bold text-primary hover:text-primary/80 transition whitespace-nowrap"
             >
-              विद्युत भवन
+              AAAveg Services
+              <div className="text-xs">आवेग सर्विसेस</div>
               <div className="  flex flex-row justify-between item-center">
-              <div className="text-xs">कॅन्टीन/मेस</div>
-              
+              <div className="text-xs">Canteen/Mess</div>
+             
               </div>
-
+              <div className="bg-orange-500 text-white text-l rounded text-center p-1 m-1">Vidyut Bhavan</div>
             </Link>
           </div>
 

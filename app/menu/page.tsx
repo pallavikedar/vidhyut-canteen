@@ -13,7 +13,7 @@ export default function MenuPage() {
   return (
     <ProtectedRoute>
       <CartProvider>
-        <div className="min-h-screen bg-background -mt-7" style={{ background: "linear-gradient(90deg, #ffecb2ff, #f9dfc7ff)" }}>
+        <div className="min-h-screen bg-background -mt-7" style={{ background: "linear-gradient(70deg, #fdfdfdff, #ffebc7ff)" }}>
           
 
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

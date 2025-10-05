@@ -1339,6 +1339,481 @@
 // }
 
 
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import {
+//   databases,
+//   ID,
+//   Permission,
+//   Role,
+//   DATABASE_ID,
+//   ORDERS_COLLECTION_ID,
+//   ORDER_ITEMS_COLLECTION_ID,
+//   ADMIN_TEAM_ID,
+// } from "@/lib/appwrite";
+// import jsPDF from "jspdf";
+
+// interface Payment {
+//   amount: number;
+//   mode: string;
+//   receivedDate: string;
+// }
+
+// export default function CreditsPage() {
+//   const [orders, setOrders] = useState<any[]>([]);
+//   const [orderItems, setOrderItems] = useState<any[]>([]);
+//   const [filter, setFilter] = useState<string>("all");
+//   const [searchTerm, setSearchTerm] = useState<string>("");
+//   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+//   const [popupOpen, setPopupOpen] = useState(false);
+//   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+//   const [paymentAmount, setPaymentAmount] = useState<number>(0);
+//   const [paymentMode, setPaymentMode] = useState<string>("cash");
+
+//   // Fetch orders
+//   const fetchOrders = async () => {
+//     try {
+//       const res = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID);
+//       setOrders(res.documents);
+//     } catch (err) {
+//       console.error("❌ Fetch orders error:", err);
+//     }
+//   };
+
+//   // Fetch order items
+//   const fetchOrderItems = async () => {
+//     try {
+//       const res = await databases.listDocuments(DATABASE_ID, ORDER_ITEMS_COLLECTION_ID);
+//       setOrderItems(res.documents);
+//     } catch (err) {
+//       console.error("❌ Fetch orderItems error:", err);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchOrders();
+//     fetchOrderItems();
+//   }, []);
+
+//   // Toggle order details
+//   const toggleExpand = (id: string) => {
+//     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+//   };
+
+//   // Open popup for Add Payment
+//   const openPaymentPopup = (order: any, fullPayment: boolean = false) => {
+//     setSelectedOrder(order);
+//     setPaymentAmount(order.balanceAmount); // pre-fill remaining balance
+//     setPaymentMode("cash"); // default
+//     setPopupOpen(true);
+//   };
+
+//   // Handle payment submit
+//   const handlePaymentSubmit = async () => {
+//     if (!paymentAmount || paymentAmount <= 0) {
+//       alert("Enter a valid amount");
+//       return;
+//     }
+
+//     const receivedDate = new Date().toISOString();
+
+//     const existingItem = orderItems.find(
+//       (oi) =>
+//         oi.userName === selectedOrder.userName &&
+//         oi.userPhone === selectedOrder.userPhone &&
+//         oi.paymentPeriod === selectedOrder.paymentPeriod &&
+//         oi.orderId === selectedOrder.$id
+//     );
+
+//     if (existingItem) {
+//       const existingPayments = existingItem.payments ? JSON.parse(existingItem.payments) : [];
+//       const updated = {
+//         ...existingItem,
+//         receivedAmount: Number(existingItem.receivedAmount) + paymentAmount,
+//         balanceAmount: Number(existingItem.totalAmount) - (Number(existingItem.receivedAmount) + paymentAmount),
+//         payments: [...existingPayments, { amount: paymentAmount, mode: paymentMode, receivedDate }],
+//       };
+
+//       await databases.updateDocument(
+//         DATABASE_ID,
+//         ORDER_ITEMS_COLLECTION_ID,
+//         existingItem.$id,
+//         { ...updated, payments: JSON.stringify(updated.payments), mode: paymentMode }
+//       );
+//     } else {
+//       const newItem = {
+//         orderId: selectedOrder.$id,
+//         userId: selectedOrder.userId,
+//         userName: selectedOrder.userName,
+//         userPhone: selectedOrder.userPhone,
+//         paymentPeriod: selectedOrder.paymentPeriod,
+//         totalAmount: selectedOrder.totalAmount || selectedOrder.amount || 0,
+//         receivedAmount: paymentAmount,
+//         balanceAmount: (selectedOrder.totalAmount || selectedOrder.amount || 0) - paymentAmount,
+//         payments: JSON.stringify([{ amount: paymentAmount, mode: paymentMode, receivedDate }]),
+//         mode: paymentMode,
+//       };
+
+//       await databases.createDocument(
+//         DATABASE_ID,
+//         ORDER_ITEMS_COLLECTION_ID,
+//         ID.unique(),
+//         newItem,
+//         [
+//           Permission.read(Role.team(ADMIN_TEAM_ID)),
+//           Permission.update(Role.team(ADMIN_TEAM_ID)),
+//           Permission.delete(Role.team(ADMIN_TEAM_ID)),
+//         ]
+//       );
+//     }
+
+//     fetchOrderItems();
+//     setPopupOpen(false);
+//   };
+
+//   // Merge orders with payments
+//   const displayOrders = orders.map((order) => {
+//     const item = orderItems.find(
+//       (oi) => oi.orderId === order.$id && oi.userId === order.userId && oi.paymentPeriod === order.paymentPeriod
+//     );
+//     const payments: Payment[] = item?.payments
+//       ? Array.isArray(item.payments)
+//         ? item.payments
+//         : JSON.parse(item.payments)
+//       : [];
+//     return {
+//       ...order,
+//       receivedAmount: item?.receivedAmount || 0,
+//       balanceAmount: item ? item.balanceAmount : order.totalAmount || order.amount || 0,
+//       payments,
+//       $id: order.$id,
+//     };
+//   });
+
+//   // Merge orders per user/paymentPeriod
+//   const mergedOrders = Object.values(
+//     displayOrders
+//       .filter((o) => (filter === "all" ? true : o.paymentPeriod === filter))
+//       .filter(
+//         (o) =>
+//           o.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//           o.userPhone.includes(searchTerm)
+//       )
+//       .reduce((acc: Record<string, any>, order) => {
+//         const key = `${order.userId}_${order.paymentPeriod}`;
+//         if (!acc[key]) {
+//           acc[key] = {
+//             userId: order.userId,
+//             userName: order.userName,
+//             userPhone: order.userPhone,
+//             paymentPeriod: order.paymentPeriod,
+//             orders: [order],
+//             totalAmount: Number(order.totalAmount),
+//             receivedAmount: Number(order.receivedAmount),
+//             balanceAmount: Number(order.balanceAmount),
+//           };
+//         } else {
+//           acc[key].orders.push(order);
+//           acc[key].totalAmount += Number(order.totalAmount);
+//           acc[key].receivedAmount += Number(order.receivedAmount);
+//           acc[key].balanceAmount += Number(order.balanceAmount);
+//         }
+//         return acc;
+//       }, {})
+//   );
+
+//   // Sort each user's orders by most recent first
+//   mergedOrders.forEach((user) => {
+//     user.orders.sort(
+//       (a: any, b: any) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+//     );
+//   });
+
+//   // Generate PDF
+//   const generatePDF = (user: any) => {
+//     const doc = new jsPDF();
+//     doc.setFontSize(16);
+//     doc.text(`Payment Report - ${user.userName}`, 10, 20);
+//     doc.setFontSize(12);
+//     doc.text(`Phone: ${user.userPhone}`, 10, 30);
+//     doc.text(`Payment Period: ${user.paymentPeriod}`, 10, 40);
+//     doc.text(`Total Amount: ${user.totalAmount}`, 10, 50);
+//     doc.text(`Received: ${user.receivedAmount}`, 10, 60);
+//     doc.text(`Balance: ${user.balanceAmount}`, 10, 70);
+
+//     let y = 85;
+//     user.orders.forEach((order: any, idx: number) => {
+//       doc.text(
+//         `Order ${idx + 1} (ID: ${order.$id.slice(-6)} | Date: ${new Date(order.$createdAt).toLocaleDateString()})`,
+//         10,
+//         y
+//       );
+//       y += 10;
+//       if (order.payments.length > 0) {
+//         order.payments.forEach((p: any, pidx: number) => {
+//           doc.text(
+//             `Payment ${pidx + 1}: Amount: ${p.amount}, Mode: ${p.mode}, Date: ${new Date(
+//               p.receivedDate
+//             ).toLocaleString()}`,
+//             12,
+//             y
+//           );
+//           y += 10;
+//         });
+//       } else {
+//         doc.text("No payments yet.", 12, y);
+//         y += 10;
+//       }
+//     });
+//     doc.save(`${user.userName}_Payment_Report.pdf`);
+//   };
+
+//   return (
+//     <div style={{ padding: 20, fontFamily: "Arial, sans-serif" }}>
+//       <h2 style={{ marginBottom: 15 }}>📦 Filter Orders</h2>
+
+//       {/* Search */}
+//       <input
+//         type="text"
+//         placeholder="Search by name or phone"
+//         value={searchTerm}
+//         onChange={(e) => setSearchTerm(e.target.value)}
+//         style={{ padding: 8, marginBottom: 15, width: "100%", borderRadius: 6, border: "1px solid #ccc" }}
+//       />
+
+//       {/* Filter buttons */}
+//       <div style={{ marginBottom: 20 }}>
+//         {["all", "daily", "weekly", "monthly"].map((f) => (
+//           <button
+//             key={f}
+//             onClick={() => setFilter(f)}
+//             style={{
+//               marginRight: 10,
+//               padding: "8px 16px",
+//               backgroundColor: filter === f ? "#d86d38" : "#eee",
+//               color: filter === f ? "#fff" : "#333",
+//               border: "none",
+//               borderRadius: 6,
+//               cursor: "pointer",
+//               fontWeight: 500,
+//             }}
+//           >
+//             {f.charAt(0).toUpperCase() + f.slice(1)}
+//           </button>
+//         ))}
+//       </div>
+
+//       {mergedOrders.map((user) => (
+//         <div
+//           key={user.userId}
+//           style={{
+//             border: "1px solid #ddd",
+//             borderRadius: 10,
+//             padding: 20,
+//             marginBottom: 20,
+//             backgroundColor: "#fff",
+//             boxShadow: "0px 4px 8px rgba(0,0,0,0.05)",
+//           }}
+//         >
+//           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+//             <div>
+//               <h3>{user.userName}</h3>
+//               <p>{user.userPhone}</p>
+//               <p>
+//                 Total: <b>{user.totalAmount}</b> | Received: <b>{user.receivedAmount}</b> | Balance:{" "}
+//                 <b style={{ color: user.balanceAmount === 0 ? "green" : "red" }}>{user.balanceAmount}</b>
+//               </p>
+//             </div>
+//             <div style={{ display: "flex", gap: 10 }}>
+//               {user.balanceAmount > 0 && (
+//                 <button
+//                   onClick={() => openPaymentPopup(user.orders.find((o: any) => o.balanceAmount > 0), true)}
+//                   style={{
+//                     padding: "6px 14px",
+//                     backgroundColor: "#007bff",
+//                     color: "#fff",
+//                     border: "none",
+//                     borderRadius: 6,
+//                     cursor: "pointer",
+//                   }}
+//                 >
+//                   Pay Full
+//                 </button>
+//               )}
+//               <button
+//                 onClick={() => generatePDF(user)}
+//                 style={{
+//                   padding: "6px 14px",
+//                   backgroundColor: "#28a745",
+//                   color: "#fff",
+//                   border: "none",
+//                   borderRadius: 6,
+//                   cursor: "pointer",
+//                 }}
+//               >
+//                 PDF
+//               </button>
+//             </div>
+//           </div>
+
+//           <div style={{ marginTop: 15 }}>
+//             {user.orders.map((order: any) => (
+//               <div
+//                 key={order.$id}
+//                 style={{
+//                   padding: 12,
+//                   borderTop: "1px solid #eee",
+//                   borderRadius: 6,
+//                   marginBottom: 8,
+//                   backgroundColor: order.balanceAmount === 0 ? "#e6ffed" : "#fff9f0",
+//                 }}
+//               >
+//                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+//                   <div>
+//                     <p style={{ margin: 0 }}>
+//                       <b>Order ID:</b> {order.$id.slice(-6)} | <b>Date:</b>{" "}
+//                       {new Date(order.$createdAt).toLocaleDateString()}
+//                     </p>
+//                     <p style={{ margin: 0 }}>
+//                       Total: {order.totalAmount} | Received: {order.receivedAmount} | Pending:{" "}
+//                       {order.balanceAmount}
+//                     </p>
+//                   </div>
+//                   <div style={{ display: "flex", gap: 6 }}>
+//                     {order.balanceAmount > 0 && (
+//                       <button
+//                         onClick={() => openPaymentPopup(order)}
+//                         style={{
+//                           padding: "4px 10px",
+//                           backgroundColor: "#d86d38",
+//                           color: "#fff",
+//                           border: "none",
+//                           borderRadius: 6,
+//                           cursor: "pointer",
+//                         }}
+//                       >
+//                         Add Payment
+//                       </button>
+//                     )}
+//                     <button
+//                       onClick={() => toggleExpand(order.$id)}
+//                       style={{
+//                         padding: "4px 10px",
+//                         backgroundColor: "#f1f1f1",
+//                         color: "#333",
+//                         border: "1px solid #ccc",
+//                         borderRadius: 6,
+//                         cursor: "pointer",
+//                       }}
+//                     >
+//                       {expanded[order.$id] ? "Hide Details" : "See Payments"}
+//                     </button>
+//                   </div>
+//                 </div>
+//                 {expanded[order.$id] && order.payments.length > 0 && (
+//                   <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 10 }}>
+//                     <thead>
+//                       <tr style={{ backgroundColor: "#f9f9f9" }}>
+//                         <th style={{ padding: 8 }}>Amount</th>
+//                         <th style={{ padding: 8 }}>Mode</th>
+//                         <th style={{ padding: 8 }}>Date & Time</th>
+//                       </tr>
+//                     </thead>
+//                     <tbody>
+//                       {order.payments.map((p: any, idx: number) => (
+//                         <tr key={idx} style={{ borderBottom: "1px solid #eee" }}>
+//                           <td style={{ padding: 8 }}>{p.amount}</td>
+//                           <td style={{ padding: 8 }}>{p.mode}</td>
+//                           <td style={{ padding: 8 }}>{new Date(p.receivedDate).toLocaleString()}</td>
+//                         </tr>
+//                       ))}
+//                     </tbody>
+//                   </table>
+//                 )}
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       ))}
+
+//       {/* Payment Popup */}
+//       {popupOpen && selectedOrder && (
+//         <div
+//           style={{
+//             position: "fixed",
+//             top: 0,
+//             left: 0,
+//             right: 0,
+//             bottom: 0,
+//             backgroundColor: "rgba(0,0,0,0.5)",
+//             display: "flex",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             zIndex: 1000,
+//           }}
+//         >
+//           <div style={{ backgroundColor: "#fff", padding: 20, borderRadius: 8, width: 350 }}>
+//             <h3>Add Payment for {selectedOrder.userName}</h3>
+//             <input
+//               type="number"
+//               value={paymentAmount}
+//               disabled // pre-filled amount
+//               style={{ width: "100%", padding: 8, marginBottom: 10, backgroundColor: "#f1f1f1" }}
+//             />
+//             <div style={{ marginBottom: 20 }}>
+//               <label>
+//                 <input
+//                   type="radio"
+//                   name="mode"
+//                   value="cash"
+//                   checked={paymentMode === "cash"}
+//                   onChange={() => setPaymentMode("cash")}
+//                 />{" "}
+//                 Cash
+//               </label>{" "}
+//               <label>
+//                 <input
+//                   type="radio"
+//                   name="mode"
+//                   value="upi"
+//                   checked={paymentMode === "upi"}
+//                   onChange={() => setPaymentMode("upi")}
+//                 />{" "}
+//                 UPI
+//               </label>{" "}
+//               <label>
+//                 <input
+//                   type="radio"
+//                   name="mode"
+//                   value="card"
+//                   checked={paymentMode === "card"}
+//                   onChange={() => setPaymentMode("card")}
+//                 />{" "}
+//                 Card
+//               </label>
+//             </div>
+//             <div style={{ display: "flex", justifyContent: "space-between" }}>
+//               <button onClick={() => setPopupOpen(false)} style={{ padding: "6px 12px" }}>
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handlePaymentSubmit}
+//                 style={{ padding: "6px 12px", backgroundColor: "#4CAF50", color: "#fff" }}
+//               >
+//                 Submit
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -1352,6 +1827,7 @@ import {
   ORDER_ITEMS_COLLECTION_ID,
   ADMIN_TEAM_ID,
 } from "@/lib/appwrite";
+import { Query } from "appwrite";
 import jsPDF from "jspdf";
 
 interface Payment {
@@ -1363,7 +1839,7 @@ interface Payment {
 export default function CreditsPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [orderItems, setOrderItems] = useState<any[]>([]);
-  const [filter, setFilter] = useState<string>("daily");
+  const [filter, setFilter] = useState<string>("all"); // default All
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [popupOpen, setPopupOpen] = useState(false);
@@ -1371,20 +1847,33 @@ export default function CreditsPage() {
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   const [paymentMode, setPaymentMode] = useState<string>("cash");
 
-  // Fetch orders
-  const fetchOrders = async () => {
+  // Fetch orders with Appwrite query
+  const fetchOrders = async (period: string) => {
     try {
-      const res = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID);
+      let queries: any[] = [];
+      if (period !== "all") {
+        queries.push(Query.equal("paymentPeriod", period));
+      }
+
+      const res = await databases.listDocuments(
+        DATABASE_ID,
+        ORDERS_COLLECTION_ID,
+        queries
+      );
+
       setOrders(res.documents);
     } catch (err) {
       console.error("❌ Fetch orders error:", err);
     }
   };
 
-  // Fetch order items
+  // Fetch order items (all, because needed for payments merge)
   const fetchOrderItems = async () => {
     try {
-      const res = await databases.listDocuments(DATABASE_ID, ORDER_ITEMS_COLLECTION_ID);
+      const res = await databases.listDocuments(
+        DATABASE_ID,
+        ORDER_ITEMS_COLLECTION_ID
+      );
       setOrderItems(res.documents);
     } catch (err) {
       console.error("❌ Fetch orderItems error:", err);
@@ -1392,9 +1881,9 @@ export default function CreditsPage() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(filter); // re-fetch when filter changes
     fetchOrderItems();
-  }, []);
+  }, [filter]);
 
   // Toggle order details
   const toggleExpand = (id: string) => {
@@ -1427,19 +1916,31 @@ export default function CreditsPage() {
     );
 
     if (existingItem) {
-      const existingPayments = existingItem.payments ? JSON.parse(existingItem.payments) : [];
+      const existingPayments = existingItem.payments
+        ? JSON.parse(existingItem.payments)
+        : [];
       const updated = {
         ...existingItem,
-        receivedAmount: Number(existingItem.receivedAmount) + paymentAmount,
-        balanceAmount: Number(existingItem.totalAmount) - (Number(existingItem.receivedAmount) + paymentAmount),
-        payments: [...existingPayments, { amount: paymentAmount, mode: paymentMode, receivedDate }],
+        receivedAmount:
+          Number(existingItem.receivedAmount) + paymentAmount,
+        balanceAmount:
+          Number(existingItem.totalAmount) -
+          (Number(existingItem.receivedAmount) + paymentAmount),
+        payments: [
+          ...existingPayments,
+          { amount: paymentAmount, mode: paymentMode, receivedDate },
+        ],
       };
 
       await databases.updateDocument(
         DATABASE_ID,
         ORDER_ITEMS_COLLECTION_ID,
         existingItem.$id,
-        { ...updated, payments: JSON.stringify(updated.payments), mode: paymentMode }
+        {
+          ...updated,
+          payments: JSON.stringify(updated.payments),
+          mode: paymentMode,
+        }
       );
     } else {
       const newItem = {
@@ -1450,8 +1951,12 @@ export default function CreditsPage() {
         paymentPeriod: selectedOrder.paymentPeriod,
         totalAmount: selectedOrder.totalAmount || selectedOrder.amount || 0,
         receivedAmount: paymentAmount,
-        balanceAmount: (selectedOrder.totalAmount || selectedOrder.amount || 0) - paymentAmount,
-        payments: JSON.stringify([{ amount: paymentAmount, mode: paymentMode, receivedDate }]),
+        balanceAmount:
+          (selectedOrder.totalAmount || selectedOrder.amount || 0) -
+          paymentAmount,
+        payments: JSON.stringify([
+          { amount: paymentAmount, mode: paymentMode, receivedDate },
+        ]),
         mode: paymentMode,
       };
 
@@ -1475,7 +1980,10 @@ export default function CreditsPage() {
   // Merge orders with payments
   const displayOrders = orders.map((order) => {
     const item = orderItems.find(
-      (oi) => oi.orderId === order.$id && oi.userId === order.userId && oi.paymentPeriod === order.paymentPeriod
+      (oi) =>
+        oi.orderId === order.$id &&
+        oi.userId === order.userId &&
+        oi.paymentPeriod === order.paymentPeriod
     );
     const payments: Payment[] = item?.payments
       ? Array.isArray(item.payments)
@@ -1485,7 +1993,9 @@ export default function CreditsPage() {
     return {
       ...order,
       receivedAmount: item?.receivedAmount || 0,
-      balanceAmount: item ? item.balanceAmount : order.totalAmount || order.amount || 0,
+      balanceAmount: item
+        ? item.balanceAmount
+        : order.totalAmount || order.amount || 0,
       payments,
       $id: order.$id,
     };
@@ -1494,7 +2004,6 @@ export default function CreditsPage() {
   // Merge orders per user/paymentPeriod
   const mergedOrders = Object.values(
     displayOrders
-      .filter((o) => (filter ? o.paymentPeriod === filter : true))
       .filter(
         (o) =>
           o.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1526,7 +2035,8 @@ export default function CreditsPage() {
   // Sort each user's orders by most recent first
   mergedOrders.forEach((user) => {
     user.orders.sort(
-      (a: any, b: any) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
+      (a: any, b: any) =>
+        new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()
     );
   });
 
@@ -1545,7 +2055,9 @@ export default function CreditsPage() {
     let y = 85;
     user.orders.forEach((order: any, idx: number) => {
       doc.text(
-        `Order ${idx + 1} (ID: ${order.$id.slice(-6)} | Date: ${new Date(order.$createdAt).toLocaleDateString()})`,
+        `Order ${idx + 1} (ID: ${order.$id.slice(-6)} | Date: ${new Date(
+          order.$createdAt
+        ).toLocaleDateString()})`,
         10,
         y
       );
@@ -1579,12 +2091,18 @@ export default function CreditsPage() {
         placeholder="Search by name or phone"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ padding: 8, marginBottom: 15, width: "100%", borderRadius: 6, border: "1px solid #ccc" }}
+        style={{
+          padding: 8,
+          marginBottom: 15,
+          width: "100%",
+          borderRadius: 6,
+          border: "1px solid #ccc",
+        }}
       />
 
       {/* Filter buttons */}
       <div style={{ marginBottom: 20 }}>
-        {["daily", "weekly", "monthly"].map((f) => (
+        {["all", "daily", "weekly", "monthly"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -1604,9 +2122,10 @@ export default function CreditsPage() {
         ))}
       </div>
 
+      {/* Orders Display */}
       {mergedOrders.map((user) => (
         <div
-          key={user.userId}
+          key={user.userId + "_" + user.paymentPeriod}
           style={{
             border: "1px solid #ddd",
             borderRadius: 10,
@@ -1616,19 +2135,37 @@ export default function CreditsPage() {
             boxShadow: "0px 4px 8px rgba(0,0,0,0.05)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <div>
               <h3>{user.userName}</h3>
               <p>{user.userPhone}</p>
               <p>
-                Total: <b>{user.totalAmount}</b> | Received: <b>{user.receivedAmount}</b> | Balance:{" "}
-                <b style={{ color: user.balanceAmount === 0 ? "green" : "red" }}>{user.balanceAmount}</b>
+                Total: <b>{user.totalAmount}</b> | Received:{" "}
+                <b>{user.receivedAmount}</b> | Balance:{" "}
+                <b
+                  style={{
+                    color: user.balanceAmount === 0 ? "green" : "red",
+                  }}
+                >
+                  {user.balanceAmount}
+                </b>
               </p>
             </div>
             <div style={{ display: "flex", gap: 10 }}>
               {user.balanceAmount > 0 && (
                 <button
-                  onClick={() => openPaymentPopup(user.orders.find((o: any) => o.balanceAmount > 0), true)}
+                  onClick={() =>
+                    openPaymentPopup(
+                      user.orders.find((o: any) => o.balanceAmount > 0),
+                      true
+                    )
+                  }
                   style={{
                     padding: "6px 14px",
                     backgroundColor: "#007bff",
@@ -1666,18 +2203,25 @@ export default function CreditsPage() {
                   borderTop: "1px solid #eee",
                   borderRadius: 6,
                   marginBottom: 8,
-                  backgroundColor: order.balanceAmount === 0 ? "#e6ffed" : "#fff9f0",
+                  backgroundColor:
+                    order.balanceAmount === 0 ? "#e6ffed" : "#fff9f0",
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   <div>
                     <p style={{ margin: 0 }}>
                       <b>Order ID:</b> {order.$id.slice(-6)} | <b>Date:</b>{" "}
                       {new Date(order.$createdAt).toLocaleDateString()}
                     </p>
                     <p style={{ margin: 0 }}>
-                      Total: {order.totalAmount} | Received: {order.receivedAmount} | Pending:{" "}
-                      {order.balanceAmount}
+                      Total: {order.totalAmount} | Received:{" "}
+                      {order.receivedAmount} | Pending: {order.balanceAmount}
                     </p>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
@@ -1712,7 +2256,13 @@ export default function CreditsPage() {
                   </div>
                 </div>
                 {expanded[order.$id] && order.payments.length > 0 && (
-                  <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 10 }}>
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      marginTop: 10,
+                    }}
+                  >
                     <thead>
                       <tr style={{ backgroundColor: "#f9f9f9" }}>
                         <th style={{ padding: 8 }}>Amount</th>
@@ -1722,10 +2272,15 @@ export default function CreditsPage() {
                     </thead>
                     <tbody>
                       {order.payments.map((p: any, idx: number) => (
-                        <tr key={idx} style={{ borderBottom: "1px solid #eee" }}>
+                        <tr
+                          key={idx}
+                          style={{ borderBottom: "1px solid #eee" }}
+                        >
                           <td style={{ padding: 8 }}>{p.amount}</td>
                           <td style={{ padding: 8 }}>{p.mode}</td>
-                          <td style={{ padding: 8 }}>{new Date(p.receivedDate).toLocaleString()}</td>
+                          <td style={{ padding: 8 }}>
+                            {new Date(p.receivedDate).toLocaleString()}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1753,13 +2308,25 @@ export default function CreditsPage() {
             zIndex: 1000,
           }}
         >
-          <div style={{ backgroundColor: "#fff", padding: 20, borderRadius: 8, width: 350 }}>
+          <div
+            style={{
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 8,
+              width: 350,
+            }}
+          >
             <h3>Add Payment for {selectedOrder.userName}</h3>
             <input
               type="number"
               value={paymentAmount}
               disabled // pre-filled amount
-              style={{ width: "100%", padding: 8, marginBottom: 10, backgroundColor: "#f1f1f1" }}
+              style={{
+                width: "100%",
+                padding: 8,
+                marginBottom: 10,
+                backgroundColor: "#f1f1f1",
+              }}
             />
             <div style={{ marginBottom: 20 }}>
               <label>
@@ -1794,12 +2361,19 @@ export default function CreditsPage() {
               </label>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button onClick={() => setPopupOpen(false)} style={{ padding: "6px 12px" }}>
+              <button
+                onClick={() => setPopupOpen(false)}
+                style={{ padding: "6px 12px" }}
+              >
                 Cancel
               </button>
               <button
                 onClick={handlePaymentSubmit}
-                style={{ padding: "6px 12px", backgroundColor: "#4CAF50", color: "#fff" }}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#4CAF50",
+                  color: "#fff",
+                }}
               >
                 Submit
               </button>

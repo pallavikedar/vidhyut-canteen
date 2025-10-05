@@ -41,11 +41,11 @@ const sidebarItems = [
     href: "/admin/credits",
     icon: CreditCard,
   },
-  {
-    title: "Revenue and Orders Analytics",
-    href: "/admin/payments",
-    icon: CreditCard,
-  },
+  // {
+  //   title: "Revenue and Orders Analytics",
+  //   href: "/admin/payments",
+  //   icon: CreditCard,
+  // },
   
  
 ]

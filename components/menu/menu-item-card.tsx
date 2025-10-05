@@ -294,7 +294,7 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
               onClick={handleAdd}
               className="h-7 text-xs px-3"
               disabled={!item.isAvailable || !selectedSize}
-              style={{background: "#ff6a06ff"}}
+              style={{background: "#ff0606ff"}}
             >
               Add +
             </Button>
